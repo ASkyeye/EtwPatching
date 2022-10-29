@@ -56,4 +56,12 @@ void patchEtwpEventWriteFull(OUT HANDLE& hProc) {
 }
 ```
 ### Let's test it inside [ExecRemoteAssembly](https://github.com/D1rkMtr/ExecRemoteAssembly)  
+  
+  
+https://user-images.githubusercontent.com/110354855/198856339-644c09c0-7299-4533-9175-716d639fb216.mp4  
+  
+## As you can see the ntdll!EtwEventWrite failed to write Event for the current process after patching it  
+
+
+
 
