@@ -55,4 +55,5 @@ void patchEtwpEventWriteFull(OUT HANDLE& hProc) {
 
 }
 ```
+### Let's test it inside [ExecRemoteAssembly](https://github.com/D1rkMtr/ExecRemoteAssembly)  
 
